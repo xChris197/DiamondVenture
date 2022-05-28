@@ -1,0 +1,51 @@
+using System;
+using System.IO;
+using UnityEngine;
+using UnityEngine.Audio;
+using UnityEngine.SceneManagement;
+
+public class SettingsManager : MonoBehaviour
+{
+    [SerializeField] private AudioMixer sfxMixer;
+    [SerializeField] private AudioMixer musicMixer;
+
+    private DateTime currentTime;
+    private DateTime previousTime;
+
+    private bool bFirstTimeOpening;
+    
+    void Start()
+    {
+        Screen.orientation = ScreenOrientation.Portrait;
+    }
+
+    public void SetMusicSlider(float volume)
+    {
+        musicMixer.SetFloat("Volume", volume);
+    }
+
+    public void SetSFXSlider(float volume)
+    {
+        sfxMixer.SetFloat("Volume", volume);
+    }
+
+    public void DeleteGame()
+    {
+        CustomEvents.SaveSystem.OnDeleteGame?.Invoke();
+        var fullpath = Path.Combine(Application.persistentDataPath, "prestigeData.dat");
+        if (File.Exists(fullpath))
+        {
+            File.Delete(fullpath);
+        }
+        SceneManager.LoadScene(0);
+        CustomEvents.Ads.OnInitializeAd?.Invoke();
+    }
+
+    public void PrestigeMode()
+    {
+        CustomEvents.Stats.OnAddToPrestige?.Invoke();
+        CustomEvents.SaveSystem.OnSaveGame?.Invoke();
+        CustomEvents.SaveSystem.OnDeleteGame?.Invoke();
+        SceneManager.LoadScene(0);
+    }
+}
